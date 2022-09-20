@@ -1,0 +1,26 @@
+server:
+  port: 2020
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: prueba1
+          uri: http://localhost:1500
+          predicates:
+            - Path=/api/book/**
+          filters:
+            - RewritePath=/api/(?<book>.*), /$\{book}
+
+        - id: appweb
+          uri: http://localhost:4200/
+          predicates:
+            - Path=/web/**
+          filters:
+            - RewritePath=/web/(?<services>.*), /web/$\{services}
+
+
+
+
