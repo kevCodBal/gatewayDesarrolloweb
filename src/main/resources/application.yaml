@@ -6,6 +6,8 @@ spring:
     name: gateway-service
   cloud:
     gateway:
+      default-filters:
+        - TokenRelay
       routes:
         - id: prueba1
           uri: http://localhost:1500
@@ -13,6 +15,8 @@ spring:
             - Path=/api/book/**
           filters:
             - RewritePath=/api/(?<book>.*), /$\{book}
+#            - RemoveRequestHeader=Cookie
+#            - TokenRelay
 
         - id: appweb
           uri: http://localhost:4200/
@@ -20,6 +24,36 @@ spring:
             - Path=/web/**
           filters:
             - RewritePath=/web/(?<services>.*), /web/$\{services}
+#            - TokenRelay
+
+        - id: node.js
+          uri:  http://localhost:3000/
+          predicates:
+            - Path=/node/**
+          filters:
+            - RewritePath=/node/(?<services>.*), /$\{services}
+            - TokenRelay
+
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            authorization-uri: http://localhost:8080/auth/realms/SPRINGFINAL/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/auth/realms/SPRINGFINAL/protocol/openid-connect/token
+            user-info-uri: http://localhost:8080/auth/realms/SPRINGFINAL/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+            issuer-uri: http://localhost:8080/auth/realms/SPRINGFINAL
+        registration:
+          LoginApp:
+            provider: keycloak
+            scope:  openid
+            client-id: LoginApp
+            client-secret:  gVNLV5D3lT6bgg1cJkkCFNWTubpgS4bE
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/loginapp"
+
 
 
 
